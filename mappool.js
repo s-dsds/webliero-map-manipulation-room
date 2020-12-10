@@ -20,8 +20,10 @@ async function getMapData(name) {
       return data;
     }
     data = await (await fetch(baseURL + '/' +  name)).arrayBuffer();
-    mapCache.set(name, data)
-    return data;
+   
+    let arr = Array.from(new Uint8Array(data));
+    mapCache.set(name, arr)
+    return arr;
 }
 
 var effects = {
@@ -41,6 +43,9 @@ var effects = {
         let ret = [];
         let line = 0;
         for (let i = 0; i < data.length; i++) {
+            if (i%basex==0) {
+                line++
+            }
             if (typeof ret[line]=="undefined") {
                 ret.push([])
                 ret.push([])
@@ -48,10 +53,7 @@ var effects = {
             ret[line].push(data[i])
             ret[line].push(data[i])
             ret[line+1].push(data[i])
-            ret[line+1].push(data[i])
-            if (i%basex==0) {
-                line++
-            }
+            ret[line+1].push(data[i])            
         }
         return { 
             x:basex*2,
@@ -74,6 +76,8 @@ COMMAND_REGISTRY.add("fx", ["!fx "+JSON.stringify(effectList)+": adds fx to the 
 }, true);
 
 function loadMap(name, data) {
+    console.log(data.data.length);
+    console.log(data.data[2]);
     let buff=new Uint8Array(data.data).buffer;
     window.WLROOM.loadRawLevel(name,buff, data.x, data.y);
 }
@@ -88,7 +92,8 @@ function loadEffect(effectidx, mapidx) {
     let name = mypool[mapidx];
     console.log(name, effectList[effectidx]);
     (async () => {
-	    let data = await getMapData(name);
+        let data = await getMapData(name);
+        console.log(typeof data);
 	    loadMap(name, effects[effectList[effectidx]](data));
     })();
 }
