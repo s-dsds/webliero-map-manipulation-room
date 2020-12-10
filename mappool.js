@@ -67,8 +67,8 @@ COMMAND_REGISTRY.add("fx", ["!fx "+JSON.stringify(effectList)+": adds fx to the 
 }, true);
 
 function loadMap(name, data) {
-    let buff=new Uint8Array(data).buffer;
-    window.WLROOM.loadLev(name,buff);
+    let buff=new Uint8Array(data.data).buffer;
+    window.WLROOM.loadRawLevel(name,buff, data.x, data.y);
 }
 
 function next() {
