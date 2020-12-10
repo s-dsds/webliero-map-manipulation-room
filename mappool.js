@@ -1,11 +1,16 @@
 var mapCache = new Map();
 var baseURL = "https://webliero.gitlab.io/webliero-maps";
-var mypool = (async () => await fetch("https://webliero.gitlab.io/webliero-maps/pools/default/arenasBest.json").then(resp => resp.json()))();
+var mypool;
+loadPool("pools/default/arenasBest.json");
 var currentMap = 0;
 var currentEffect = 0;
 
 var basex = 504;
 var basey = 350;
+
+function loadPool(name) {
+	mypool = await (await fetch(baseURL + '/' +  name)).json();
+}
 
 async function getMapData(name) {
     let data = mapCache.get(name)
@@ -34,7 +39,7 @@ var effects = {
         let ret = [];
         let line = 0;
         for (let i = 0; i < data.length; i++) {
-            if (typeof ret[line]!="undefined") {
+            if (typeof ret[line]=="undefined") {
                 ret.push([])
                 ret.push([])
             }
@@ -79,8 +84,11 @@ function next() {
 
 function loadEffect(effectidx, mapidx) {
     let name = mypool[mapidx];
-    let data = getMapData(name);
-    loadMap(name, effects[effectList[effectidx]](data));
+    console.log(name, effectList[effectidx]);
+    (async () => {
+	    let data = await getMapData(name);
+	    loadMap(name, effects[effectList[effectidx]](data));
+    })();
 }
 
 function _base64ToArrayBuffer(base64) {
