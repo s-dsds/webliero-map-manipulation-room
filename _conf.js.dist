@@ -1,0 +1,5 @@
+const CONFIG = {
+    admins: [""],
+    discord_invite: "https://discord.gg/hW9UCgR",
+    public: false,
+};
