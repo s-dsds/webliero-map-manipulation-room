@@ -1,6 +1,6 @@
 var mapCache = new Map();
 var baseURL = "https://webliero.gitlab.io/webliero-maps";
-var mypool;
+var mypool = [];
 loadPool("pools/default/arenasBest.json");
 var currentMap = 0;
 var currentEffect = 0;
@@ -9,7 +9,9 @@ var basex = 504;
 var basey = 350;
 
 function loadPool(name) {
+	(async () => {
 	mypool = await (await fetch(baseURL + '/' +  name)).json();
+	})();
 }
 
 async function getMapData(name) {
