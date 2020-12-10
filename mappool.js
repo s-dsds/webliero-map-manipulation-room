@@ -7,7 +7,7 @@ var currentEffect = 0;
 var basex = 504;
 var basey = 350;
 
-async function getMapData(name) {
+function getMapData(name) {
     let data = mapCache.get(name)
     if (data) {
       return data;
@@ -79,6 +79,6 @@ function next() {
 
 function loadEffect(effectidx, mapidx) {
     let name = mypool[mapidx];
-    let data = await getMapData(name)
+    let data = getMapData(name)
     loadMap(name, effects[effectList[effectidx]](data))
 }
