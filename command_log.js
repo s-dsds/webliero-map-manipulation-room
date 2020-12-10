@@ -10,7 +10,7 @@ window.WLROOM.onPlayerJoin = (player) => {
 	
 	announce("Welcome to the Resize test room!", player, 0xFF2222, "bold");
 	announce("current map is`"+mypool[currentMap]+"` with effect `"+effectList[currentEffect]+"`", player, 0xDD2222);
-    announce("This is a completely experimental room & will be online for a limited time, please enjoy", player, 0xFF22FF, "italic");
+    announce("This is a completely experimental proof of concept room & will be online for a limited time, please enjoy", player, 0xFF22FF, "italic");
 	
 	announce("please join us on discord if you're not there yet! "+CONFIG.discord_invite, player, 0xDD00DD, "italic");
 	if (player.auth){		
