@@ -1,13 +1,13 @@
 var mapCache = new Map();
 var baseURL = "https://webliero.gitlab.io/webliero-maps";
-var mypool = fetch("https://webliero.gitlab.io/webliero-maps/pools/default/arenasBest.json").json();
+var mypool = (async () => await fetch("https://webliero.gitlab.io/webliero-maps/pools/default/arenasBest.json").then(resp => resp.json()))();
 var currentMap = 0;
 var currentEffect = 0;
 
 var basex = 504;
 var basey = 350;
 
-function getMapData(name) {
+async function getMapData(name) {
     let data = mapCache.get(name)
     if (data) {
       return data;

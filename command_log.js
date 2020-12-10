@@ -9,6 +9,8 @@ window.WLROOM.onPlayerJoin = (player) => {
 	auth.set(player.id, player.auth);
 	
 	announce("Welcome to the Resize test room!", player, 0xFF2222, "bold");
+	console.log(JSON.stringify(mypool));
+	console.log(JSON.stringify(effectList));
 	announce("current map is`"+mypool[currentMap]+"` with effect `"+effectList[currentEffect]+"`", player, 0xDD2222);
     announce("This is a completely experimental proof of concept room & will be online for a limited time, please enjoy", player, 0xFF22FF, "italic");
 	
