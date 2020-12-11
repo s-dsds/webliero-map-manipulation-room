@@ -29,7 +29,8 @@ async function getMapData(name) {
 var effects = {
     stretch: function (data) {
         let ret = [];
-        for (let i = 0; i < data.length; i++) {
+        const ln =  basex*basey;
+        for (let i = 0; i < ln; i++) {
             ret.push(data[i]);
             ret.push(data[i]);
         }
@@ -42,18 +43,20 @@ var effects = {
     bigger: function(data) {
         let ret = [];
         let line = 0;
-        for (let i = 0; i < data.length; i++) {
-            if (i%basex==0) {
-                line++
-            }
+        const ln =  basex*basey;
+        for (let i = 0; i < ln; i++) {
             if (typeof ret[line]=="undefined") {
                 ret.push([])
                 ret.push([])
             }
-            ret[line].push(data[i])
-            ret[line].push(data[i])
-            ret[line+1].push(data[i])
-            ret[line+1].push(data[i])            
+            let currpix =data[i];
+            ret[line].push(currpix)
+            ret[line].push(currpix)
+            ret[line+1].push(currpix)
+            ret[line+1].push(currpix)
+            if (i%basex==0) {
+                line+=2;
+            }          
         }
         return { 
             x:basex*2,
