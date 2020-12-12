@@ -62,6 +62,21 @@ var effects = {
             data:ret.reduce((a, b) => a.concat(b),  [])
         }
     },
+    rotate: function (data) {
+        let ret = [];
+
+        for (let j =0; j<basex; j++) {
+            for (let i=basey-1; i>=0; i--) {        
+                ret.push(data[ (basex*i)+  j]);
+            }
+        }
+         
+        return { 
+            x:basey,
+            y:basex,
+            data:ret
+        }
+    },
     bigger: function(data) {
         let ret = [];
         let line = 0;
