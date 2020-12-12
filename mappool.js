@@ -159,7 +159,7 @@ COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+" [mapname]: a
         fxidx = Math.floor(Math.random() * effectList.length);
     }
     if (typeof map !="undefined") {
-        loadMapByName(fxidx, name.join(" "))
+        loadMapByName(fxidx, map.join(" "))
     }
     loadEffect(fxidx, currentMap)
     return false;
