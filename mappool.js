@@ -153,7 +153,7 @@ var effects = {
 var effectList=Object.keys(effects);
 
 
-COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+" [mapname]: adds fx to the current map or the map provided, applying a random effect or the effect provided"], (player, fx, ...map) => {
+COMMAND_REGISTRY.add("fx", ()=>["!fx "+JSON.stringify(effectList)+" [mapname]: adds fx to the current map or the map provided, applying a random effect or the effect provided"], (player, fx, ...map) => {
     let fxidx = effectList.indexOf(fx)
     if (fxidx<0) {
         fxidx = Math.floor(Math.random() * effectList.length);
