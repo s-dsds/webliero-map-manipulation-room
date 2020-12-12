@@ -40,6 +40,28 @@ var effects = {
             data:ret
         }
     },
+    stretchy: function (data) {
+        let ret = [];
+        let line = 0;
+        const ln =  basex*basey;
+        for (let i = 0; i < ln; i++) {
+            if (typeof ret[line]=="undefined") {
+                ret.push([])
+                ret.push([])
+            }
+            let currpix =data[i];
+            ret[line].push(currpix)
+            ret[line+1].push(currpix)
+            if (i%basex==0) {
+                line+=2;
+            }          
+        }
+        return { 
+            x:basex,
+            y:basey*2,
+            data:ret.reduce((a, b) => a.concat(b),  [])
+        }
+    },
     bigger: function(data) {
         let ret = [];
         let line = 0;
@@ -63,16 +85,66 @@ var effects = {
             y:basey*2,
             data:ret.reduce((a, b) => a.concat(b),  [])
         }
-    }
+    },
+    reverse: function (data) {
+        let ret = [];
+        const ln =  (basex*basey)-1;
+        for (let i = ln; i >= 0; i--) {
+            ret.push(data[i]);
+        }
+        return { 
+            x:basex,
+            y:basey,
+            data:ret
+        }
+    },
+    mirror: function (data) {
+        let ret = [];
+        for (let j = 0; j < basey; j++ ) {
+            for (let i = basex-1; i >= 0; i--) {
+                
+                    ret.push(data[(j*basex)+i]);
+                        
+            }
+        }  
+        return { 
+            x:basex,
+            y:basey,
+            data:ret
+        }
+    },        
+    expand: function (data) {
+        let ret = [];
+        for (let j = 0; j < basey; j++ ) {
+            for (let i = 0; i<basex; i++) {
+                
+                ret.push(data[(j*basex)+i]);
+                    
+            }
+            for (let i = basex-1; i >= 0; i--) {
+                
+                    ret.push(data[(j*basex)+i]);
+                        
+            }
+        }  
+        return { 
+            x:basex*2,
+            y:basey,
+            data:ret
+        }
+    },
 }
 
 var effectList=Object.keys(effects);
 
 
-COMMAND_REGISTRY.add("fx", ["!fx "+JSON.stringify(effectList)+": adds fx to the current map, applying a random effect or the effect provided"], (player, fx) => {
+COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+" [mapname]: adds fx to the current map or the map provided, applying a random effect or the effect provided"], (player, fx, ...map) => {
     let fxidx = effectList.indexOf(fx)
     if (fxidx<0) {
         fxidx = Math.floor(Math.random() * effectList.length);
+    }
+    if (typeof map !="undefined") {
+        loadMapByName(fxidx, name.join(" "))
     }
     loadEffect(fxidx, currentMap)
     return false;
@@ -110,3 +182,18 @@ function _base64ToArrayBuffer(base64) {
     }
     return bytes.buffer;
 }
+
+function loadMapByName(effectidx, name) {
+    console.log(name, effectList[effectidx]);
+    (async () => {
+        let data = await getMapData(name);
+        console.log(typeof data);
+	    loadMap(name, effects[effectList[effectidx]](data));
+    })();
+}
+
+COMMAND_REGISTRY.add("map", ["!map #mapname#: load lev map from gitlab webliero.gitlab.io, applying a random effect"], (player, ...name) => {
+    let fxidx = Math.floor(Math.random() * effectList.length);
+    loadMapByName(fxidx, name.join(" "))
+    return false;
+}, true);

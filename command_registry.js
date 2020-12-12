@@ -131,6 +131,9 @@ var COMMAND_REGISTRY = (function () {
             return msg
         })()
         msg.forEach((m) => {
+            if (typeof m=="function") {
+                m = m();
+            }
             room.sendAnnouncement(m, p.id, settings.motd_color)
         })        
     }
