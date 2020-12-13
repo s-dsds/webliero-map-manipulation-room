@@ -21,7 +21,7 @@ async function getMapData(name) {
    
     let arr = Array.from(new Uint8Array(data));
     mapCache.set(name, arr)
-    return arr;
+    return {x:504,y:350,data:arr};
 }
 
 
@@ -68,7 +68,7 @@ function loadEffects(fxs, mapidx) {
         let data = await getMapData(name);
         console.log(typeof data);
         for (var idx in fxs) {
-            data = effects[fxs[idx]]({x:504,y:350,data:data});
+            data = effects[fxs[idx]](data);
         }
 	    loadMap(name, data);
     })();
@@ -80,7 +80,7 @@ function loadEffect(effectidx, mapidx) {
     (async () => {
         let data = await getMapData(name);
         console.log(typeof data);
-	    loadMap(name, effects[effectList[effectidx]]({x:504,y:350,data:data}));
+	    loadMap(name, effects[effectList[effectidx]](data));
     })();
 }
 
