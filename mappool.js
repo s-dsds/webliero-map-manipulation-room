@@ -44,7 +44,7 @@ COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+": adds fx to 
     if (fxs.length==0) {
         fxs.push(Math.floor(Math.random() * effectList.length));
     }
-    loadEffect(fxs, currentMap);
+    loadEffects(fxs, currentMap);
     return false;
 }, true);
 
@@ -80,7 +80,7 @@ function loadEffect(effectidx, mapidx) {
     (async () => {
         let data = await getMapData(name);
         console.log(typeof data);
-	    loadMap(name, effects[effectList[effectidx]](data));
+	    loadMap(name, effects[effectList[effectidx]]({x:504,y:350,data:data}));
     })();
 }
 
