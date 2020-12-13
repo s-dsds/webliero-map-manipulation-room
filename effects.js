@@ -1,6 +1,3 @@
-var map.x = 504;
-var map.y = 350;
-
 var effects = {
     stretch: function (map) {
         let ret = [];
