@@ -33,6 +33,15 @@ async function getMapData(name) {
     return obj;
 }
 
+function getbestpixelValue(red,green,blue) {
+    let colorVal = Array.prototype.slice.call(arguments).join("_");;
+    if (invPal.get(colorVal)==undefined) {
+            return 1;
+            
+        } 
+        return invPal.get(colorVal);		
+}
+
 async function getPngMapData(name) {
     let blob = await (await fetch(baseURL + '/' +  name)).blob();
     let img = new Image();
@@ -49,7 +58,7 @@ async function getPngMapData(name) {
     let imgData = ctx.getImageData(0, 0, ret.x, ret.y);
 
     for (let i = 0; i < imgData.data.length; i += 4) {
-      ret.data.push(imgData.data[i],imgData.data[i + 1],imgData.data[i + 2]);
+      ret.data.push(getbestpixelValue(imgData.data[i],imgData.data[i + 1],imgData.data[i + 2]));
     }
 
     return ret;
