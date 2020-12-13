@@ -3,6 +3,7 @@ var baseURL = "https://webliero.gitlab.io/webliero-maps";
 var mypool = [];
 loadPool("pools/default/arenasBest.json");
 var currentMap = 0;
+var currentMapName = "";
 var currentEffect = 0;
 var effectList=Object.keys(effects);
 
@@ -13,38 +14,70 @@ function loadPool(name) {
 }
 
 async function getMapData(name) {
-    let data = mapCache.get(name)
-    if (data) {
-      return {x:504,y:350,data:data};
+    let x = 504;
+    let y = 350;
+
+    let obj = mapCache.get(name)
+    if (obj) {
+      return obj;
     }
-    data = await (await fetch(baseURL + '/' +  name)).arrayBuffer();
-   
-    let arr = Array.from(new Uint8Array(data));
-    mapCache.set(name, arr)
-    return {x:504,y:350,data:arr};
+    if (name.split('.').pop()=="png") {    
+       obj = await getPngMapData(name);
+    } else {
+        let buff = await (await fetch(baseURL + '/' +  name)).arrayBuffer();
+        let arr = Array.from(new Uint8Array(buff));
+        obj = {x:x,y:y,data:arr};
+    }
+    
+    mapCache.set(name, obj)
+    return obj;
 }
 
+async function getPngMapData(name) {
+    let blob = await (await fetch(baseURL + '/' +  name)).blob();
+    let img = new Image();
+    const imageLoadPromise = new Promise(resolve => {        
+      img.onload = resolve;
+      img.src = URL.createObjectURL(blob);
+    });
+    await imageLoadPromise;
 
+    let ret = {x:img.width, y: img.height, data:[]};
+    let canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d", {alpha: false});
+    ctx.drawImage(img, 0, 0);
+    let imgData = ctx.getImageData(0, 0, ret.x, ret.y);
 
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      ret.data.push(imgData.data[i],imgData.data[i + 1],imgData.data[i + 2]);
+    }
 
-
+    return ret;
+}
 
 COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+": adds fx to the current map, applying a random effect or the effect provided"], (player, ...fx) => {
     let fxs = [];
     if (typeof fx=='object') {
+        let big=false;
         fxs = fx.map(
             function(e) {	
                 let trimmed=e.trim();
-                if (effectList.indexOf(trimmed) >= 0) {
+                if (effectList.indexOf(trimmed) >= 0 && (trimmed!="bigger" || big==false)) { // filtering bigger since it actually breaks when chained
+                    if (trimmed == "bigger") {
+                        big=true;
+                    }
                     return trimmed;
               }
             }
-        ).slice(0, 3);
+        ).filter(x => x).slice(0, 3);
     }
     if (fxs.length==0) {
         fxs.push(Math.floor(Math.random() * effectList.length));
     }
-    loadEffects(fxs, currentMap);
+    if (currentMapName=="") {
+        resolveNextMap();
+    }
+    loadEffects(fxs, currentMapName);
     return false;
 }, true);
 
@@ -55,14 +88,18 @@ function loadMap(name, data) {
     window.WLROOM.loadRawLevel(name,buff, data.x, data.y);
 }
 
-function next() {
+function resolveNextMap() {
     currentMap=currentMap+1<mypool.length?currentMap+1:0;
-    currentEffect=currentEffect+1<effectList.length?currentEffect+1:0;
-    loadEffect(currentEffect, currentMap)
+    currentMapName = mypool[currentMap];
 }
 
-function loadEffects(fxs, mapidx) {
-    let name = mypool[mapidx];
+function next() {
+    resolveNextMap();
+    currentEffect=currentEffect+1<effectList.length?currentEffect+1:0;
+    loadEffect(currentEffect, currentMapName);
+}
+
+function loadEffects(fxs, name) {
     console.log(name, JSON.stringify(fxs));
     (async () => {
         let data = await getMapData(name);
@@ -75,8 +112,7 @@ function loadEffects(fxs, mapidx) {
     })();
 }
 
-function loadEffect(effectidx, mapidx) {
-    let name = mypool[mapidx];
+function loadEffect(effectidx, name) {
     console.log(name, effectList[effectidx]);
     (async () => {
         let data = await getMapData(name);
@@ -95,17 +131,10 @@ function _base64ToArrayBuffer(base64) {
     return bytes.buffer;
 }
 
-function loadMapByName(effectidx, name) {
-    console.log(name, effectList[effectidx]);
-    (async () => {
-        let data = await getMapData(name);
-        console.log(typeof data);
-	    loadMap(name, effects[effectList[effectidx]](data));
-    })();
-}
 
 COMMAND_REGISTRY.add("map", ["!map #mapname#: load lev map from gitlab webliero.gitlab.io, applying a random effect"], (player, ...name) => {
     let fxidx = Math.floor(Math.random() * effectList.length);
-    loadMapByName(fxidx, name.join(" "))
+    currentMapName = name.join(" ");
+    loadEffect(fxidx, currentMapName);
     return false;
 }, true);

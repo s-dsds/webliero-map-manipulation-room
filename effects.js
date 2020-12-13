@@ -120,4 +120,37 @@ var effects = {
             data:ret
         }
     },
+    double: function (map) {
+        let ret = [];
+        for (let j = 0; j < map.y; j++ ) {
+            for (let k = 0; k <2; k++) {
+                for (let i = 0; i<map.x; i++) {
+                    
+                    ret.push(map.data[(j*map.x)+i]);
+                        
+                }
+            }
+        }  
+        return { 
+            x:map.x*2,
+            y:map.y,
+            data:ret
+        }
+    },
+    expandrev: function (map) {
+        let ret = [];
+        for (let j = 0; j < map.y; j++ ) {
+            for (let i = 0; i<map.x; i++) {
+                ret.push(map.data[(j*map.x)+i]);
+            }
+            for (let i = 0; i<map.x; i++) {
+                    ret.push(map.data[(map.y-j-1)*map.x+i]);                        
+            }
+        } 
+        return { 
+            x:map.x*2,
+            y:map.y,
+            data:ret
+        }
+    },
 }
