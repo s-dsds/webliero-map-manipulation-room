@@ -4,9 +4,7 @@ var mypool = [];
 loadPool("pools/default/arenasBest.json");
 var currentMap = 0;
 var currentEffect = 0;
-
-var basex = 504;
-var basey = 350;
+var effectList=Object.keys(effects);
 
 function loadPool(name) {
 	(async () => {
@@ -26,142 +24,27 @@ async function getMapData(name) {
     return arr;
 }
 
-var effects = {
-    stretch: function (data) {
-        let ret = [];
-        const ln =  basex*basey;
-        for (let i = 0; i < ln; i++) {
-            ret.push(data[i]);
-            ret.push(data[i]);
-        }
-        return { 
-            x:basex*2,
-            y:basey,
-            data:ret
-        }
-    },
-    stretchy: function (data) {
-        let ret = [];
-        let line = 0;
-        const ln =  basex*basey;
-        for (let i = 0; i < ln; i++) {
-            if (typeof ret[line]=="undefined") {
-                ret.push([])
-                ret.push([])
-            }
-            let currpix =data[i];
-            ret[line].push(currpix)
-            ret[line+1].push(currpix)
-            if (i%basex==0) {
-                line+=2;
-            }          
-        }
-        return { 
-            x:basex,
-            y:basey*2,
-            data:ret.reduce((a, b) => a.concat(b),  [])
-        }
-    },
-    rotate: function (data) {
-        let ret = [];
-
-        for (let j =0; j<basex; j++) {
-            for (let i=basey-1; i>=0; i--) {        
-                ret.push(data[ (basex*i)+  j]);
-            }
-        }
-         
-        return { 
-            x:basey,
-            y:basex,
-            data:ret
-        }
-    },
-    bigger: function(data) {
-        let ret = [];
-        let line = 0;
-        const ln =  basex*basey;
-        for (let i = 0; i < ln; i++) {
-            if (typeof ret[line]=="undefined") {
-                ret.push([])
-                ret.push([])
-            }
-            let currpix =data[i];
-            ret[line].push(currpix)
-            ret[line].push(currpix)
-            ret[line+1].push(currpix)
-            ret[line+1].push(currpix)
-            if (i%basex==0) {
-                line+=2;
-            }          
-        }
-        return { 
-            x:basex*2,
-            y:basey*2,
-            data:ret.reduce((a, b) => a.concat(b),  [])
-        }
-    },
-    reverse: function (data) {
-        let ret = [];
-        const ln =  (basex*basey)-1;
-        for (let i = ln; i >= 0; i--) {
-            ret.push(data[i]);
-        }
-        return { 
-            x:basex,
-            y:basey,
-            data:ret
-        }
-    },
-    mirror: function (data) {
-        let ret = [];
-        for (let j = 0; j < basey; j++ ) {
-            for (let i = basex-1; i >= 0; i--) {
-                
-                    ret.push(data[(j*basex)+i]);
-                        
-            }
-        }  
-        return { 
-            x:basex,
-            y:basey,
-            data:ret
-        }
-    },        
-    expand: function (data) {
-        let ret = [];
-        for (let j = 0; j < basey; j++ ) {
-            for (let i = 0; i<basex; i++) {
-                
-                ret.push(data[(j*basex)+i]);
-                    
-            }
-            for (let i = basex-1; i >= 0; i--) {
-                
-                    ret.push(data[(j*basex)+i]);
-                        
-            }
-        }  
-        return { 
-            x:basex*2,
-            y:basey,
-            data:ret
-        }
-    },
-}
-
-var effectList=Object.keys(effects);
 
 
-COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+" [mapname]: adds fx to the current map or the map provided, applying a random effect or the effect provided"], (player, fx, ...map) => {
-    let fxidx = effectList.indexOf(fx)
-    if (fxidx<0) {
-        fxidx = Math.floor(Math.random() * effectList.length);
+
+
+
+COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+": adds fx to the current map, applying a random effect or the effect provided"], (player, ...fx) => {
+    let fxs = [];
+    if (typeof fx=='object') {
+        fxs = fx.map(
+            function(e) {	
+                let trimmed=e.trim();
+                if (effectList.indexOf(trimmed) >= 0) {
+                    return trimmed;
+              }
+            }
+        );
     }
-    if (typeof map !="undefined") {
-        loadMapByName(fxidx, map.join(" "))
+    if (fxs.length==0) {
+        fxs.push(Math.floor(Math.random() * effectList.length));
     }
-    loadEffect(fxidx, currentMap)
+    loadEffect(fxs, currentMap);
     return false;
 }, true);
 
@@ -176,6 +59,19 @@ function next() {
     currentMap=currentMap+1<mypool.length?currentMap+1:0;
     currentEffect=currentEffect+1<effectList.length?currentEffect+1:0;
     loadEffect(currentEffect, currentMap)
+}
+
+function loadEffects(fxs, mapidx) {
+    let name = mypool[mapidx];
+    console.log(name, JSON.stringify(fxs));
+    (async () => {
+        let data = await getMapData(name);
+        console.log(typeof data);
+        for (let fx in fxs) {
+            data = effects[fx]({x:504,y:350,data:data});
+        }
+	    loadMap(name, data);
+    })();
 }
 
 function loadEffect(effectidx, mapidx) {
