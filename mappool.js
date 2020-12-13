@@ -39,7 +39,7 @@ COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+": adds fx to 
                     return trimmed;
               }
             }
-        );
+        ).slice(0, 3);
     }
     if (fxs.length==0) {
         fxs.push(Math.floor(Math.random() * effectList.length));
