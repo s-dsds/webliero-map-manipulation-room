@@ -67,8 +67,8 @@ function loadEffects(fxs, mapidx) {
     (async () => {
         let data = await getMapData(name);
         console.log(typeof data);
-        for (const [key, fx] of fxs) {
-            data = effects[fx]({x:504,y:350,data:data});
+        for (var idx in fxs) {
+            data = effects[fxs[idx]]({x:504,y:350,data:data});
         }
 	    loadMap(name, data);
     })();
