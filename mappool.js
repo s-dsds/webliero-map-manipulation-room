@@ -15,7 +15,7 @@ function loadPool(name) {
 async function getMapData(name) {
     let data = mapCache.get(name)
     if (data) {
-      return data;
+      return {x:504,y:350,data:data};
     }
     data = await (await fetch(baseURL + '/' +  name)).arrayBuffer();
    
@@ -68,6 +68,7 @@ function loadEffects(fxs, mapidx) {
         let data = await getMapData(name);
         console.log(typeof data);
         for (var idx in fxs) {
+            console.log(fxs[idx]);
             data = effects[fxs[idx]](data);
         }
 	    loadMap(name, data);
