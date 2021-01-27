@@ -19,7 +19,7 @@ async function getMapData(name) {
 
     let obj = mapCache.get(name)
     if (obj) {
-      return obj;
+   //   return obj;
     }
     if (name.split('.').pop()=="png") {    
        obj = await getPngMapData(name);
@@ -33,9 +33,12 @@ async function getMapData(name) {
     return obj;
 }
 
+var pixConvFailures = 0;
+	
 function getbestpixelValue(red,green,blue) {
     let colorVal = Array.prototype.slice.call(arguments).join("_");;
     if (invPal.get(colorVal)==undefined) {
+            pixConvFailures++;		
             return 1;
             
         } 
@@ -43,6 +46,7 @@ function getbestpixelValue(red,green,blue) {
 }
 
 async function getPngMapData(name) {
+    pixConvFailures = 0;
     let blob = await (await fetch(baseURL + '/' +  name)).blob();
     let img = new Image();
     const imageLoadPromise = new Promise(resolve => {        
@@ -53,14 +57,17 @@ async function getPngMapData(name) {
 
     let ret = {x:img.width, y: img.height, data:[]};
     let canvas = document.createElement("canvas");
+    canvas.width  = ret.x;
+    canvas.height = ret.y;
     let ctx = canvas.getContext("2d", {alpha: false});
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, ret.x, ret.y);
+    
     let imgData = ctx.getImageData(0, 0, ret.x, ret.y);
-
+    console.log("data len x y", imgData.data.length, ret.x, ret.y , ret.x * ret.y, imgData.data.length/4);
     for (let i = 0; i < imgData.data.length; i += 4) {
       ret.data.push(getbestpixelValue(imgData.data[i],imgData.data[i + 1],imgData.data[i + 2]));
     }
-
+    console.log("pix failures", pixConvFailures);
     return ret;
 }
 
@@ -78,7 +85,7 @@ COMMAND_REGISTRY.add("fx", [()=>"!fx "+JSON.stringify(effectList)+": adds fx to 
                     return trimmed;
               }
             }
-        ).filter(x => x).slice(0, 3);
+        ).filter(x => x).slice(0, 5);
     }
     if (fxs.length==0) {
         fxs.push(Math.floor(Math.random() * effectList.length));

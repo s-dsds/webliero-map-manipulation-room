@@ -5,8 +5,3 @@ let invPal = new Map();
 for (let i = 0; i<pal.length; i++) {
     invPal.set(pal[i],i);
 }
-
-function getpixelValue(red,green,blue) {
-    let colorVal = Array.prototype.slice.call(arguments).join("_");;
-    return invPal.get(colorVal);		
-}

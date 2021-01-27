@@ -153,4 +153,57 @@ var effects = {
             data:ret
         }
     },
+    top: function (map) {
+        let ret = [];
+        for (let j = 0; j < map.x*Math.round(map.y/2); j++ ) {
+            ret.push(map.data[j]);      
+        }  
+        return { 
+            x:map.x,
+            y:Math.round(map.y/2),
+            data:ret
+        }
+    },
+    bottom: function (map) {
+        let ret = [];
+        let halfy =Math.round(map.y/2);
+        let half = (halfy*map.x);
+        for (let j = 0; j < half; j++ ) {
+            ret.push(map.data[half+j]);      
+        }  
+        return { 
+            x:map.x,
+            y:halfy,
+            data:ret
+        }
+    },
+    left: function (map) {
+        let ret = [];
+        for (let j = 0; j < map.y; j++ ) {
+            for (let i = 0; i<Math.round(map.x/2); i++) {
+                ret.push(map.data[(j*map.x)+i]);
+            }
+        } 
+        return { 
+            x:Math.round(map.x/2),
+            y:map.y,
+            data:ret
+        }
+    },
+    right: function (map) {
+        let ret = [];
+        let halfx =Math.round(map.x/2);
+        for (let j = 0; j < map.y; j++ ) {
+            for (let i = 0; i<halfx; i++) {
+                ret.push(map.data[(j*map.x)+halfx+i]);
+            }
+        } 
+        return { 
+            x:halfx,
+            y:map.y,
+            data:ret
+        }
+    },
 }
+
+var effectList=Object.keys(effects);
